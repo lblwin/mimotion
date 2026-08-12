@@ -13,35 +13,34 @@ jobs:
       - name: Checkout codes
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.PAT }} #此处PAT需要申请，教程详见：README
+          token: ${{ secrets.PAT }}
+
       - name: Update system and install zsh
         run: |
           sudo -E apt-get -qq update
           sudo -E apt-get install zsh -y
-          
+
       - name: 初始化Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.10"
-          
+
       - name: 开始
         env:
-            CONFIG: ${{ secrets.CONFIG }}
-            AES_KEY: ${{ secrets.AES_KEY }}
+          CONFIG: ${{ secrets.CONFIG }}
+          AES_KEY: ${{ secrets.AES_KEY }}
         run: |
           pip3 install requests pytz pycryptodome
           python3 main.py
 
-     - name: persist tokens
+      - name: persist tokens
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 只有存在实际变更时才提交
           if [ -n "$(git status --porcelain)" ]; then
-          git add .
-          git commit -m "persist tokens triggered by ${{ github.event_name }}"
-          # 自动适配当前分支，而不是硬编码 master 或 main
-          git push origin HEAD
-        else
-          echo "No changes to commit, skipping."
-         fi
+            git add .
+            git commit -m "persist tokens triggered by ${{ github.event_name }}"
+            git push origin HEAD
+          else
+            echo "No changes to commit, skipping."
+          fi
