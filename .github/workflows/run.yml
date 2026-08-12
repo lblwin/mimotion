@@ -32,10 +32,16 @@ jobs:
           pip3 install requests pytz pycryptodome
           python3 main.py
 
-      - name: persist tokens
+     - name: persist tokens
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 只有存在实际变更时才提交
+          if [ -n "$(git status --porcelain)" ]; then
           git add .
-          git commit -m "persist tokens trigger by ${{ github.event_name }}"
-          git push origin master
+          git commit -m "persist tokens triggered by ${{ github.event_name }}"
+          # 自动适配当前分支，而不是硬编码 master 或 main
+          git push origin HEAD
+        else
+          echo "No changes to commit, skipping."
+         fi
